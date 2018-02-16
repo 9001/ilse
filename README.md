@@ -3,6 +3,7 @@ irclog search engine
 
 ## building
 
+* `grep -R yoursite.yourTLD .` and replace those
 * since you want TLS: apply the nginx config in web/nginx.config
 * copy web/index.php to somewhere in your nginx htdocs
 * `mvn package`
