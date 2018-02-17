@@ -14,7 +14,7 @@ the java backend:
 * `mvn package`
 
 the html client:
-* `web/install.sh`
+* `web/setup.sh`
 
 fair warning, you'll probably have to fiddle with the nginx config a bit
 

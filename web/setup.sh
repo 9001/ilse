@@ -57,7 +57,7 @@ sed -r "
 {
 	curl https://raw.githubusercontent.com/nfrasser/linkify-shim/master/linkify.min.js
 	echo
-	curl https://raw.githubusercontent.com/nfrasser/linkify-shim/master/linkify-string.min.js
+	curl https://raw.githubusercontent.com/nfrasser/linkify-shim/master/linkify-html.min.js
 } > "$dest/linkify.js"
 
 echo

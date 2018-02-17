@@ -8,6 +8,7 @@ if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on') die('https is requi
 ?><!DOCTYPE html><html lang="en"><head>
 <meta charset="utf-8" />
 <title>ilse</title>
+<meta name="referrer" content="no-referrer">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=0.7">
 <style>
@@ -112,7 +113,17 @@ td[alt]:hover:after {
 	background: #333;
 	padding: 0 2em;
 }
-
+.t2 {
+	display: none;
+}
+.ts:hover .t1,
+.ts:active .t1 {
+	display: none;
+}
+.ts:hover .t2,
+.ts:active .t2 {
+	display: inline;
+}
 #mobile {
 	padding: 0 .5em;
 }
@@ -126,12 +137,15 @@ td[alt]:hover:after {
 .ts {
 	color: #38a;
 	text-align: center;
+	position: relative;
 }
 .chan {
 	color: #c38;
 	text-align: right;
 }
-.chan, .from, .ts {
+#mobile .chan,
+#mobile .from,
+#mobile .ts {
 	display: inline-block;
 	overflow: hidden;
 	width: 33%;
@@ -174,6 +188,7 @@ a {
 
 function o(n){return document.getElementById(n);}
 
+var last_q = null;
 var results = null;
 
 
@@ -202,7 +217,7 @@ o('q').addEventListener('keyup', function(ev)
 	ev.preventDefault();
 	if (ev.keyCode === 13)
 	{
-		send_q();
+		send_q(true);
 	}
 	else
 	{
@@ -211,11 +226,18 @@ o('q').addEventListener('keyup', function(ev)
 	}
 });
 
-o('q_btn').addEventListener('click', send_q, false);
+o('q_btn').addEventListener('click', function() { send_q(true); }, false);
 
-function send_q()
+function send_q(force=false)
 {
 	window.clearTimeout(qto);
+	
+	var q = o('q').value;
+	if (!force && q == last_q)
+	{
+		return;
+	}
+	last_q = q;
 	ws.send(o('q').value);
 }
 
@@ -345,7 +367,12 @@ function show_results()
 		var msg = esc(m.msg);
 		try
 		{
-			msg = linkifyStr(msg, {defaultProtocol: 'https'});
+			msg = linkifyHtml(msg, {
+				defaultProtocol: 'https',
+				attributes: {
+					rel: 'noreferrer'
+				}
+			});
 		}
 		catch(e)
 		{
@@ -358,9 +385,8 @@ function show_results()
 					esc(m.from) +
 				'</div>' +
 				'<div class="ts">' +
-					'<span alt="' + m.ts + '">' +
-						td +
-					'</span>' +
+					'<span class="t1">' + td + '</span>' +
+					'<span class="t2">' + m.ts + '</span>' +
 				'</div>' +
 				'<div class="chan">' +
 					esc(m.net) + ' ' +
@@ -372,9 +398,10 @@ function show_results()
 		else
 			html.push('<tr><td>' +
 				esc(m.net) + '</td><td>' +
-				esc(m.chan) + '</td><td alt="' +
-				m.ts + '">' +
-				td + '</td><td>' +
+				esc(m.chan) + '</td><td class="ts">' +
+					'<span class="t1">' + td + '</span>' +
+					'<span class="t2">' + m.ts + '</span>' +
+				'</td><td>' +
 				esc(m.from) + '</td><td>' +
 				msg + '</td><tr>');
 	}
