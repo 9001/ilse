@@ -47,30 +47,15 @@ public class WebsockSrv extends WebSocketServer
 			Pattern.UNICODE_CASE | Pattern.CANON_EQ | Pattern.CASE_INSENSITIVE);
 	}
 
-	String now()
-	{
-		return ZonedDateTime.now(ZoneOffset.UTC).toString();
-	}
-
-	void print(String msg)
-	{
-		System.out.println(msg);
-	}
-
-	void eprint(String msg)
-	{
-		System.err.println(msg);
-	}
-
 	void cprint(WebSocket conn, String msg)
 	{
-		print(now() + "  " + conn.getRemoteSocketAddress().getAddress().getHostAddress() + "  " + msg);
+		z.print(z.now() + "  " + conn.getRemoteSocketAddress().getAddress().getHostAddress() + "  " + msg);
 	}
-	
+
 	@Override
 	public void onStart()
 	{
-		print("  *  ilse is up");
+		z.print("  *  ilse is up");
 	}
 
 	@Override
@@ -82,7 +67,7 @@ public class WebsockSrv extends WebSocketServer
 	@Override
 	public void onOpen(WebSocket conn, ClientHandshake handshake)
 	{
-		String utc = now();
+		String utc = z.now();
 		conn.send("server utc: " + utc);
 		rm_auth(conn);
 		cprint(conn, "join");
@@ -145,7 +130,7 @@ public class WebsockSrv extends WebSocketServer
 	{
 		//WebSocketImpl.DEBUG = true;
 
-		print("  *  starting ws...");
+		z.print("  *  starting ws...");
 		
 		m_running = true;
 		this.start();
@@ -172,13 +157,15 @@ public class WebsockSrv extends WebSocketServer
 				if (cmd.equals(":upd"))
 				{
 					conn.send("[REFRESH_START]");
+					long t0 = System.currentTimeMillis();
 					m_idx.refresh(m_srch);
+					z.spent(t0);
 					conn.send("[REFRESH_DONE]");
 				}
 
 				if (cmd.equals(":end"))
 				{
-					print("  *  shutting down...");
+					z.print("  *  shutting down...");
 					m_srch.close();
 					this.stop();
 					m_running = false;
@@ -188,11 +175,11 @@ public class WebsockSrv extends WebSocketServer
 
 			if (!m_srch.is_open())
 			{
-				print("???");
+				z.print("???");
 				return;
 			}
 
-			//print(String.valueOf(m_srch.hitcount(cmd)));
+			//z.print(String.valueOf(m_srch.hitcount(cmd)));
 			SearchResult sr = m_srch.search(cmd);
 
 			StringBuilder sb = new StringBuilder();
@@ -222,10 +209,10 @@ public class WebsockSrv extends WebSocketServer
 		}
 		catch (Exception e)
 		{
-			eprint("\n\033[1;37m/!\\ \033[1;31m" + e.getClass() +
+			z.eprint("\n\033[1;37m/!\\ \033[1;31m" + e.getClass() +
 				"\033[37m :-(\033[0;31m");
 			e.printStackTrace();
-			eprint("\033[0m\n");
+			z.eprint("\033[0m\n");
 		}
 	}
 }

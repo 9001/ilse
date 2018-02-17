@@ -74,21 +74,6 @@ public class LogSearcher
 			Pattern.UNICODE_CASE | Pattern.CANON_EQ | Pattern.CASE_INSENSITIVE);
 	}
 
-	String now()
-	{
-		return ZonedDateTime.now(ZoneOffset.UTC).toString();
-	}
-
-	void print(String msg)
-	{
-		System.out.println(msg);
-	}
-
-	void eprint(String msg)
-	{
-		System.err.println(msg);
-	}
-
 	public void open() throws Exception
 	{
 		try
@@ -98,7 +83,7 @@ public class LogSearcher
 		}
 		catch (Exception e)
 		{
-			eprint("\033[1;33msrch.open() err: \033[22m" + e.getMessage() + "\033[0m");
+			z.eprint("\033[1;33msrch.open() err: \033[22m" + e.getMessage() + "\033[0m");
 			close();
 		}
 	}
@@ -123,14 +108,14 @@ public class LogSearcher
 	public long hitcount(String str_query) throws Exception
 	{
 		Query query = m_parser.parse(str_query);
-		//print(query.toString());
+		//z.print(query.toString());
 		return hitcount(query);
 	}
 
 	public SearchResult search(String str_query) throws Exception
 	{
 		Query query = m_parser.parse(str_query);
-		//print(query.toString());
+		//z.print(query.toString());
 		return search(query);
 	}
 
@@ -185,8 +170,8 @@ public class LogSearcher
 		String good = "\\+ \\- \\&& \\|| \\! \\( \\) \\{ \\} \\[ \\] \\^ \\\" \\~ \\* \\? \\: \\\\ \\/ & | # $ ;";
 		String chk = esc(bad);
 		
-		//if (good == chk)      print("ok"); else print("err");  // err
-		//if (good.equals(chk)) print("ok"); else print("err");  // ok
+		//if (good == chk)      z.print("ok"); else z.print("err");  // err
+		//if (good.equals(chk)) z.print("ok"); else z.print("err");  // ok
 		
 		if (!good.equals(chk))
 			throw new Exception(
