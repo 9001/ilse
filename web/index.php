@@ -67,7 +67,7 @@ input {
 	padding-top: 3em;
 }
 #head {
-	position: fixed;
+	position: absolute;
 	font-size: 1em;
 	top: 0;
 	left: 0;
@@ -76,13 +76,13 @@ input {
 	height: 1.5em;
 }
 #head_qb {
-	position: fixed;
+	position: absolute;
 	top: .6em;
 	left: .7em;
 	right: 8.1em;
 }
 #q_btn {
-	position: fixed;
+	position: absolute;
 	top: .7em;
 	right: .7em;
 	width: 6em;
@@ -113,6 +113,39 @@ td[alt]:hover:after {
 	padding: 0 2em;
 }
 
+#mobile {
+	padding: 0 .5em;
+}
+#hitcount {
+	text-align: center;
+	margin-bottom: .5em;
+}
+.from {
+	color: #c83;
+}
+.ts {
+	color: #38a;
+	text-align: center;
+}
+.chan {
+	color: #c38;
+	text-align: right;
+}
+.chan, .from, .ts {
+	display: inline-block;
+	overflow: hidden;
+	width: 33%;
+}
+.msg {
+	margin-bottom: .6em;
+	padding-bottom: .6em;
+	border-bottom: 1px solid #777;
+	word-break: break-word;
+}
+a {
+	color: #fc8;
+}
+
 </style></head><body>
 
 <table id="fs_tab"><tr><td id="fs_td">
@@ -136,9 +169,12 @@ td[alt]:hover:after {
 	<h1>hello world</h1>
 </div>
 
+<script src="linkify.js"></script>
 <script>
 
 function o(n){return document.getElementById(n);}
+
+var results = null;
 
 
 
@@ -287,25 +323,68 @@ ws.onmessage = function(e)
 	if (m.substr(0, 11) === '{"hitcount"')
 	{
 		var jo = JSON.parse(m);
-		html = ['<table><tr><td>net</td><td>chan</td><td>ts</td><td>from</td><td>' + jo.hitcount + '</td></tr>'];
-		jo = jo.docs;
-		//html.push('<tr><td><h1>' + jo.length + '</ht></td></tr>');
-		for (var a = 0, aa = jo.length - 1; a < aa; a++)
-		{
-			var td = new Date(parseInt(jo[a].ts) * 1000);
-			td = td.toISOString().replace('T',' ').substr(0, 19);
-
-			html.push('<tr><td>' +
-				esc(jo[a].net) + '</td><td>' +
-				esc(jo[a].chan) + '</td><td alt="' +
-				jo[a].ts + '">' +
-				td + '</td><td>' +
-				esc(jo[a].from) + '</td><td>' +
-				esc(jo[a].msg) + '</td><tr>');
-		}
-		html.push('<tr><td>eof</td</tr></table>');
-		o('wrap').innerHTML = html.join('\n');
+		results = JSON.parse(m);
+		show_results();
 	}
 };
+
+function show_results()
+{
+	var mobile = Math.max(document.documentElement.clientWidth, window.innerWidth || 0) < 1000;
+	if (mobile)
+		html = ['<div id="mobile">','<div id="hitcount">' + results.hitcount + ' hits</div>'];
+	else
+		html = ['<table><tr><td>net</td><td>chan</td><td>ts</td><td>from</td><td>' + results.hitcount + '</td></tr>'];
+
+	for (var a = 0, aa = results.docs.length - 1; a < aa; a++)
+	{
+		var m = results.docs[a];
+		var td = new Date(parseInt(m.ts) * 1000);
+		td = td.toISOString().replace('T',' ').substr(0, 19);
+		
+		var msg = esc(m.msg);
+		try
+		{
+			msg = linkifyStr(msg, {defaultProtocol: 'https'});
+		}
+		catch(e)
+		{
+			console.log(e);
+		}
+
+		if (mobile)
+			html.push(
+				'<div class="from">' +
+					esc(m.from) +
+				'</div>' +
+				'<div class="ts">' +
+					'<span alt="' + m.ts + '">' +
+						td +
+					'</span>' +
+				'</div>' +
+				'<div class="chan">' +
+					esc(m.net) + ' ' +
+					esc(m.chan) +
+				'</div>' +
+				'<div class="msg">' +
+					msg +
+				'</div>');
+		else
+			html.push('<tr><td>' +
+				esc(m.net) + '</td><td>' +
+				esc(m.chan) + '</td><td alt="' +
+				m.ts + '">' +
+				td + '</td><td>' +
+				esc(m.from) + '</td><td>' +
+				msg + '</td><tr>');
+	}
+	
+	if (mobile)
+		html.push('</div>');
+	else
+		html.push('<tr><td>eof</td</tr></table>');
+	
+	o('wrap').innerHTML = html.join('\n');
+}
 </script></body></html>
 
