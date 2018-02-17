@@ -46,11 +46,11 @@ domain="$(printf '%s\n' "$domain" | sed -r 's/[\/&]/\\&/g')"
 mkdir -p "$dest"
 
 sed -r "
-	s/yourdomain.yourTLD/$domain/g;
+	s/yoursite.yourTLD/$domain/g;
 	s/([^0-9a-zA-Z])9002/\1$wsint/" < index.php > "$dest/index.php"
 
 sed -r "
-	s/yourdomain.yourTLD/$domain/g;
+	s/yoursite.yourTLD/$domain/g;
 	s/([^0-9a-zA-Z])9002/\1$wsint/;
 	s/([^0-9a-zA-Z])9001/\1$wsext/" < nginx.conf > "modified-nginx.conf"
 
