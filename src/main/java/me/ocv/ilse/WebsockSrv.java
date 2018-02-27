@@ -151,6 +151,8 @@ public class WebsockSrv extends WebSocketServer
 		try
 		{
 			cprint(conn, "ok: " + cmd);
+			
+			int num_hits = 100;
 
 			if (cmd.substring(0, 1).equals(":"))
 			{
@@ -161,6 +163,7 @@ public class WebsockSrv extends WebSocketServer
 					m_idx.refresh(m_srch);
 					z.spent(t0);
 					conn.send("[REFRESH_DONE]");
+					return;
 				}
 
 				if (cmd.equals(":end"))
@@ -169,8 +172,16 @@ public class WebsockSrv extends WebSocketServer
 					m_srch.close();
 					this.stop();
 					m_running = false;
+					return;
 				}
-				return;
+
+				try
+				{
+					int ofs = cmd.indexOf(" ");
+					num_hits = Integer.parseInt(cmd.substring(1, ofs));
+					cmd = cmd.substring(ofs + 1);
+				}
+				catch (Exception dontcare) {}
 			}
 
 			if (!m_srch.is_open())
@@ -180,7 +191,7 @@ public class WebsockSrv extends WebSocketServer
 			}
 
 			//z.print(String.valueOf(m_srch.hitcount(cmd)));
-			SearchResult sr = m_srch.search(cmd);
+			SearchResult sr = m_srch.search(cmd, num_hits);
 
 			StringBuilder sb = new StringBuilder();
 			sb.append("{\"hitcount\":");

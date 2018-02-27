@@ -112,11 +112,11 @@ public class LogSearcher
 		return hitcount(query);
 	}
 
-	public SearchResult search(String str_query) throws Exception
+	public SearchResult search(String str_query, int num_hits) throws Exception
 	{
 		Query query = m_parser.parse(str_query);
 		//z.print(query.toString());
-		return search(query);
+		return search(query, num_hits);
 	}
 
 	public long hitcount(Query query) throws Exception
@@ -124,9 +124,9 @@ public class LogSearcher
 		return m_searcher.search(query, 1).totalHits;
 	}
 
-	public SearchResult search(Query query) throws Exception
+	public SearchResult search(Query query, int num_hits) throws Exception
 	{
-		int ret_len = 100;
+		int ret_len = num_hits;
 
 		TopFieldDocs result = m_searcher.search(query, ret_len,
 			new Sort(new SortedNumericSortField(
